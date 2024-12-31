@@ -8,11 +8,13 @@ const {
   sendVipSubcriptionEmail,
   sendPasswordResetEmail,
   sendVerificationCodeEmail,
+  sendVipUnsubcriptionEmail,
   sendNewsletterEmails,
   deleteAccountEmail,
   sendVipExpiration,
   sendWelcomeEmail,
   sendVipRemainder,
+  sendAdminEmail,
   contactEmail
 
 } = require('../helpers/email');
@@ -357,60 +359,50 @@ exports.toggleAdmin = async (req, res) => {
   try {
     const { userId, makeAdmin } = req.body;
 
-    if (!req.user.isAdmin) {
-      return res.status(403).json({
-        status: 'error',
-        message: 'Only admins can modify admin privileges'
-      });
+    if (!userId || typeof makeAdmin !== 'boolean') {
+      return res.status(400).json({ status: 'error', message: 'Invalid request parameters' });
+    }
+
+    const requestingUser = await User.findById(req.user.id);
+    if (!requestingUser?.isAdmin) {
+      return res.status(403).json({ status: 'error', message: 'Only admins can modify admin privileges' });
     }
 
     const userToUpdate = await User.findById(userId);
-
     if (!userToUpdate) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'User not found'
-      });
+      return res.status(404).json({ status: 'error', message: 'User not found' });
     }
 
-    // Prevent modifying the default admin's status
     if (userToUpdate.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-      return res.status(403).json({
-        status: 'error',
-        message: 'Default admin status cannot be modified'
-      });
+      return res.status(403).json({ status: 'error', message: 'Default admin status cannot be modified' });
     }
 
-    // If removing admin status, check if the requesting user is authorized
-    if (!makeAdmin && !req.user.isAuthorized) {
-      return res.status(403).json({
-        status: 'error',
-        message: 'Only the authorized admin can remove admin privileges'
-      });
+    if (!makeAdmin && !requestingUser.isAuthorized) {
+      return res.status(403).json({ status: 'error', message: 'Only authorized admin can remove admin privileges' });
     }
 
     userToUpdate.isAdmin = makeAdmin;
     await userToUpdate.save();
 
+    if (makeAdmin) {
+      await Promise.all([
+        sendAdminEmail(userToUpdate.email, userToUpdate.username, makeAdmin),
+        createNotification({
+          userId: userToUpdate._id,
+          title: `Admin Status ${makeAdmin ? 'granted' : 'revoked'}`,
+          message: `Admin privileges ${makeAdmin ? 'granted' : 'revoked'} by ${requestingUser.username}`
+        })
+      ]);
+    }
+
     res.status(200).json({
       status: 'success',
-      message: makeAdmin ? 'Admin privileges granted' : 'Admin privileges removed',
-      data: {
-        user: {
-          id: userToUpdate._id,
-          email: userToUpdate.email,
-          username: userToUpdate.username,
-          isAdmin: userToUpdate.isAdmin
-        }
-      }
+      message: `Admin privileges ${makeAdmin ? 'granted' : 'removed'}`,
+      data: { user: userToUpdate }
     });
   } catch (error) {
     console.error('Toggle admin error:', error);
-    res.status(500).json({
-      status: 'error',
-      message: 'Failed to toggle admin status',
-      details: error.message
-    });
+    res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
@@ -433,10 +425,6 @@ exports.updateProfile = async (req, res) => {
           message: 'Invalid email format'
         });
       }
-
-
-
-
 
       const existingUser = await User.findOne({ email: newEmail, _id: { $ne: userId } });
       if (existingUser) {
@@ -660,72 +648,61 @@ exports.toggleVipStatus = async (req, res) => {
   try {
     const { userId, isVip, vipPlan, payment } = req.body;
 
-    if (typeof isVip !== 'boolean' || !['weekly', 'monthly'].includes(vipPlan)) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Invalid VIP parameters'
-      });
+    if (!userId || typeof isVip !== 'boolean' || (isVip && !payment)) {
+      return res.status(400).json({ status: 'error', message: 'Invalid request parameters' });
     }
 
-    const activation = new Date();
-    const duration = vipPlan === 'weekly' ? 7 : 30;
-    const expires = new Date(activation);
-    expires.setDate(expires.getDate() + duration);
+    if (isVip && !['weekly', 'monthly'].includes(vipPlan)) {
+      return res.status(400).json({ status: 'error', message: 'Invalid VIP plan' });
+    }
 
-
-
-    const user = await User.findByIdAndUpdate(
-      userId,
-      {
-        isVip,
-        vipPlan,
-        activation,
-        duration,
-        expires,
-
-        payment
-      },
-      { new: true }
-    );
-
+    const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'User not found'
-      });
+      return res.status(404).json({ status: 'error', message: 'User not found' });
     }
 
-    sendVipSubcriptionEmail(user.email, user.username, duration, vipPlan, activation, expires);
-    await createNotification({
-      userId: user._id,
-      title: 'VIP Status Updated',
-      message: `Your ${vipPlan} VIP subscription is now active until ${expires.toLocaleDateString()}`,
-      data: {
-        vipPlan,
-        expires: expires.toISOString(),
-        activation: activation.toISOString()
-      }
-    });
+    const updateData = {
+      isVip,
+      vipPlan: isVip ? vipPlan : '',
+      activation: isVip ? new Date() : null,
+      duration: isVip ? (vipPlan === 'weekly' ? 7 : 30) : 0,
+      expires: isVip ? new Date(Date.now() + (vipPlan === 'weekly' ? 7 : 30) * 24 * 60 * 60 * 1000) : null,
+      payment: isVip ? payment : 0
+    };
+
+    Object.assign(user, updateData);
+    await user.save();
+
+    if (isVip) {
+      await Promise.all([
+        sendVipSubcriptionEmail(user.email, user.username, user.duration, vipPlan, user.activation, user.expires),
+        createNotification({
+          userId: user._id,
+          title: 'VIP Subscription Activated',
+          message: `${vipPlan} VIP subscription activated until ${user.expires.toLocaleDateString()}`
+        })
+      ]);
+    } else {
+      await Promise.all([
+        sendVipUnsubcriptionEmail(user.email, user.username),
+        createNotification({
+          userId: user._id,
+          title: 'VIP Subscription Deactivated',
+          message: `${vipPlan} VIP subscription deactivated`
+        })
+      ]);
+    }
+
     res.status(200).json({
       status: 'success',
-      message: 'VIP status updated successfully',
-      data: {
-        isVip: user.isVip,
-        vipPlan: user.vipPlan,
-        activation: user.activation,
-        expires: user.expires
-      }
+      message: `VIP status ${isVip ? 'activated' : 'deactivated'}`,
+      data: { user }
     });
   } catch (error) {
     console.error('VIP status update error:', error);
-    res.status(500).json({
-      status: 'error',
-      message: 'VIP status update failed',
-      details: error.message
-    });
+    res.status(500).json({ status: 'error', message: error.message });
   }
 };
-
 
 exports.getAllUsers = async (req, res) => {
   try {
@@ -988,7 +965,7 @@ const checkVipExpirations = async () => {
     for (const user of expiringUsers) {
       const daysLeft = Math.ceil((user.expires - currentDate) / (1000 * 60 * 60 * 24));
 
-   
+
 
       await createNotification({
         userId: user._id,

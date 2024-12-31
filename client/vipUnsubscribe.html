@@ -38,10 +38,10 @@
             border-radius: 8px;
             padding: 25px;
             margin: 20px 0;
-            border-left: 4px solid #00eda1;
+            border-left: 4px solid #ff4d4d;
         }
         h3 {
-            color: #6cd7ff;
+            color: #ff6c6c;
             margin: 0 0 15px;
             font-size: 24px;
             font-weight: 600;
@@ -78,18 +78,15 @@
             width: 24px;
             height: 24px;
             opacity: 0.9;
-           object-fit: cover;
+            object-fit: cover;
             object-position: center;
             transition: opacity 0.2s;
         }
         .social-image:hover {
             opacity: 1;
         }
-        .footer p {
-            margin: 8px 0;
-            color: #617092;
-            font-size: 14px;
-        }
+
+
         .renew-button {
             display: inline-block;
             padding: 10px 20px;
@@ -105,6 +102,12 @@
         .renew-button:hover {
             background-color: #00c789;
         }
+        
+        .footer p {
+            margin: 8px 0;
+            color: #617092;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -115,9 +118,8 @@
         <div class="content">
             <p>Hello {{username}},</p>
             <div class="promo-box">
-                <h3>Reminder:  {{duration}} Days Left to Renew Your VIP Subscription!</h3>
-                <p>Your VIP subscription is set to expire in {{duration}} days. Renew now to continue accessing premium betting tips, expert analysis, and exclusive insights from 433tips. Don't miss out on maximizing your winning potential!</p>
-                <a href="https://433tips.com/renew" class="renew-button">Renew Now</a>
+                <h3>Your subscription has been cancelled</h3>
+                <p>Contact us at support@433tips.com if you have any questions or concerns.</p>
             </div>
             <div class="content-foot">
                 <p>Best regards,<br><br><span>433tips Team</span></p>
@@ -169,7 +171,7 @@
                     </a>
                 </div>
             </div>
-            <p>You are receiving this email because you created an account with us</p>
+            <p>You are receiving this email because you deleted your account.</p>
             <p>© 2024 433tips.com. All rights reserved.</p>
         </div>
     </div>

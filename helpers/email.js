@@ -155,6 +155,7 @@ exports.sendNewsletterEmails = async (emails, subject, message) => {
   const batchSize = 10;
   const batchDelay = 10000;
   const successfulEmails = [];
+  const transporter = emailTransporter(); 
 
   if (Array.isArray(emails)) {
     for (let i = 0; i < emails.length; i += batchSize) {
@@ -193,7 +194,6 @@ exports.sendNewsletterEmails = async (emails, subject, message) => {
 
   return successfulEmails;
 }
-
 exports.sendVipRemainder = async (email, username, duration) => {
   if (!email || !username) {
     throw new Error('Email and username are required to send a welcome email.');
@@ -218,6 +218,69 @@ exports.sendVipRemainder = async (email, username, duration) => {
     throw new Error('Failed to send the remainder email.');
   }
 };
+
+exports.sendAdminEmail = async (email, username, makeAdmin) => {
+  if (!email || !username) {
+    throw new Error('Email and username required');
+  }
+
+  try {
+    const template = fs.readFileSync(path.join(__dirname, '../client/adminEmail.html'), 'utf-8');
+    
+    const emailData = {
+      title: makeAdmin ? 'Welcome New Admin' : 'Admin Access Removed',
+      message: makeAdmin 
+        ? 'You now have admin privileges. Access the admin panel to manage site features.'
+        : 'Your admin access has been revoked. You no longer have access to admin features.',
+      subject: makeAdmin ? 'Admin Access Granted' : 'Admin Access Removed'
+    };
+
+    const html = template
+      .replace('{{username}}', username)
+      .replace('{{message}}', emailData.message)
+      .replace('{{title}}', emailData.title);
+
+    await emailTransporter().sendMail({
+      from: process.env.SUPPORT_ADMIN_EMAIL,
+      to: email,
+      subject: emailData.subject,
+      html
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Admin email error:', error);
+    throw new Error('Failed to send admin status email');
+  }
+};
+
+
+exports.sendVipUnsubcriptionEmail = async (email, username) => {
+  if (!email || !username) {
+    throw new Error('Email and username required');
+  }
+
+  try {
+    const emailPath = path.join(__dirname, '../client/vipUnsubscribe.html');
+    const template = fs.readFileSync(emailPath, 'utf-8');
+    const personalizedTemplate = template.replace('{{username}}', username);
+
+    let mailOptions = { 
+      from: process.env.PAYMENT_EMAIL,
+      to: email,
+      subject: 'VIP Unsubscribed',
+      html: personalizedTemplate,
+    };
+
+    const transporter = emailTransporter();
+    const info = await transporter.sendMail(mailOptions);
+    return { success: true, message: 'Vip unsubscribed email sent successfully.' };
+  } catch (error) {
+    throw new Error('Failed to send the vip unsubscribed email.');
+  }
+  
+}
+
 
 exports.sendPasswordResetEmail = async (username, email, resetToken) => {
 
