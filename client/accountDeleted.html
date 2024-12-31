@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1c2b4b;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header {
+            padding: 25px;
+            text-align: center;
+            background-color: #0a0e1a;
+            border-bottom: 3px solid #00eda1;
+        }
+        
+        .header img {
+            height:100px;
+            object-fit: cover;
+            object-position: center;
+        }
+        
+        .content {
+            padding: 35px;
+            background-color: #121f38;
+            color: #f2f4f7;
+        }
+        .promo-box {
+            background-color: #0c1629;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 4px solid #ff4d4d;
+        }
+        h3 {
+            color: #ff6c6c;
+            margin: 0 0 15px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        p {
+            line-height: 1.6;
+            color: #f2f4f7;
+            margin: 15px 0;
+            font-size: 16px;
+        }
+        .content-foot {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #1c2b4b;
+        }
+        .content-foot span {
+            color: #00eda1;
+            font-weight: 600;
+        }
+        .footer {
+            padding: 25px;
+            color: #69b5d1;
+            text-align: center;
+            background-color: #0c1629;
+        }
+        .social-icons {
+            padding: 20px 0;
+        }
+        .social-links {
+            display: inline-block;
+            margin: 0 8px;
+        }
+        .social-image {
+            width: 24px;
+            height: 24px;
+            opacity: 0.9;
+            object-fit: cover;
+            object-position: center;
+            transition: opacity 0.2s;
+        }
+        .social-image:hover {
+            opacity: 1;
+        }
+
+
+        .renew-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #00eda1;
+            color: #0a0e1a;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 15px;
+            transition: background-color 0.2s;
+        }
+        .renew-button:hover {
+            background-color: #00c789;
+        }
+        
+        .footer p {
+            margin: 8px 0;
+            color: #617092;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://raw.githubusercontent.com/DarknessMonarch/433tip/refs/heads/master/public/assets/logo.png" alt="433tips logo">
+        </div>
+        <div class="content">
+            <p>Hello {{username}},</p>
+            <div class="promo-box">
+                <h3>Account Deleted</h3>
+                <p>{{message}}</p>
+            </div>
+            <div class="content-foot">
+                <p>Best regards,<br><br><span>433tips Team</span></p>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Contact: 433tips@gmail.com</p>
+            <div class="social-icons">
+                <div class="social-links">
+                    <a href="https://instagram.com/433__tips?utm_source=qr&igshid=MzNlNGNkZWQ4Mg%3D%3D">
+                        <img src="https://raw.githubusercontent.com/DarknessMonarch/433tip/refs/heads/master/public/assets/instagram.png" alt="Instagram" class="social-image">
+                    </a>
+                   
+                </div>
+                
+                <div class="social-links">
+                    <a href="https://www.facebook.com/profile.php?id=61550333845293&mibextid=9R9pXO">
+                        <img src="https://raw.githubusercontent.com/DarknessMonarch/433tip/refs/heads/master/public/assets/facebook.png" alt="Facebook" class="social-image">
+                    </a>
+                    
+                </div>
+                <div class="social-links">
+                    <a href="https://t.me/four_three_three_tips">
+                        <img src="https://raw.githubusercontent.com/DarknessMonarch/433tip/refs/heads/master/public/assets/telegram.png" alt="Telegram" class="social-image">
+                    </a>
+                    
+                </div>
+               
+                <div class="social-links">
+                    <a href="https://www.youtube.com/@433__Tips">
+                        <img src="https://raw.githubusercontent.com/DarknessMonarch/433tip/refs/heads/master/public/assets/youtube.png" alt="YouTube" class="social-image">
+                    </a>
+                </div>
+                <div class="social-links">
+                    <a href="https://twitter.com/433__tips?t=0gSFRZkJ3AM0DAfj4rglDw&s=09">
+                        <img src="https://raw.githubusercontent.com/DarknessMonarch/433tip/refs/heads/master/public/assets/twitter.png" alt="Twitter" class="social-image">
+                    </a>
+                </div>
+                <div class="social-links">
+                    <a href="https://whatsapp.com/channel/0029VaIfGfUCRs1k81P0VR1J">
+                    <img src="https://raw.githubusercontent.com/DarknessMonarch/433tip/refs/heads/master/public/assets/whatsapp.png" alt="WhatsApp" class="social-image">
+
+                    </a>
+                </div>
+                <div class="social-links">
+                    <a href="https://www.threads.net/@433__tips">
+                    <img src="https://raw.githubusercontent.com/DarknessMonarch/433tip/refs/heads/master/public/assets/thread.png" alt="Thread" class="social-image">
+
+                    </a>
+                </div>
+            </div>
+            <p>You are receiving this email because you deleted your account.</p>
+            <p>© 2024 433tips.com. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
