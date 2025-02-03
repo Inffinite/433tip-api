@@ -1,0 +1,41 @@
+services:
+  tipserver:
+    container_name: Tip-server
+    image: tipserver
+    restart: unless-stopped
+    build: .
+    networks: 
+      - nginxproxymanager_default
+    volumes:
+      - ./:/app
+    environment:
+      - PORT=4000
+      - CLOUDNAME=dcdhvlxct
+      - EMAIL=433tip@gmail.com
+      - INFO_EMAIL=info@433tips.com
+      - ADMIN_EMAIL=433tip@gmail.com
+      - SUPPORT_EMAIL=support@433tips.com
+      - ACCOUNT_EMAIL=account@433tips.com
+      - PAYMENT_EMAIL=payment@433tips.com
+      - SUPPORT_ADMIN_EMAIL=admin@433tips.com
+      - MANAGEMENT_EMAIL=management@433tips.com
+      - WEBSITE_LINK=http://localhost:3000
+      - EMAIL_PASSWORD=amnlnetzyxeirehf 
+      - CLOUDINARY_CLOUD_NAME=djuta2tca
+      - CLOUDINARY_API_KEY=875956835654432
+      - CLOUDINARY_API_SECRET=ItT32RMD9UfJ9e23-Wp2y5RfGEM
+      - MONGO_CONNECTION_URL=mongodb+srv://433tips:gx0ncxMWkn5VXCCU@cluster0.gv0xd.mongodb.net/433tip?retryWrites=true&w=majority&appName=Cluster0
+      - JWT_SECRET=be4ec9884b55be46b3e90f75d434e2682f7668c1fd91c5b36ba01ce7991986e65cd5f9253c8f4d2d559ace419f07505c9fc57f66e0514a7f67e4cd13dc832bdf
+      - SESSION_SECRET=21a28187541be7c8fb0bfabeb9d418bf789203cbdc0c41383e0dc4a9390ebc09971a83d0e7e4d3bd20cf5e49059b42e4f9c278be3f14c0d9dcded3f69ab5a089
+      - ONESIGNAL_APP_ID=ccc8b37e-4253-4a36-b45b-b4d4fc38e38c
+      - ONESIGNAL_API_KEY=os_v2_app_ztelg7scknfdnnc3wtkpyohdrrnzyucfjj5ubtelzqke5rgpnyc45lxd6movnobluoa2fwsyzhho3f5kxmmnhibxie2gilk3r2bwirq
+      - REFRESH_TOKEN_SECRET=uo2lk9KX3!tqR7n@83vPMzFJ6sDpA%yHb4GcYxZwT5Nvw4t
+    ports:
+      - "3550:4000"
+    command: npm start
+  
+networks:
+  nginxproxymanager_default:
+    name: nginxproxymanager_default
+    external: true
+
